@@ -268,6 +268,14 @@ Alternatively, update the `GGUF_PATH` variable in `pipeline.py` to point to the 
 
 ---
 
+## Core Scripts & Pipeline Modules
+
+* **`extract_features.py`:** Pre-extracts and caches 768-D RoBERTa text embeddings and 512-D CLIP visual embeddings from middle video frames across the MELD train, dev, and test splits into PyTorch tensors (`.pt`), significantly accelerating downstream classifier training.
+* **`train_classifier.py`:** Loads the cached multimodal feature tensors, applies inverse class weighting to address MELD label imbalance, trains the 3-layer `MultimodalEmotionClassifier` MLP head across 25 epochs, and evaluates final performance against the official 2,610-sample test set to save `emotion_classifier_best.pth`.
+* **`pipeline.py`:** Serves as the real-time end-to-end inference entry point. It accepts text and video input, performs live feature extraction, runs the trained MLP classifier to predict the emotion tag, feeds the context to the local quantized Qwen2.5-1.5B LLM, and outputs both the structured emotion state and empathetic text response alongside per-stage millisecond latency metrics.
+
+---
+
 ## Project Structure
 
 ```text
