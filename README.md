@@ -78,7 +78,6 @@ The gap between weighted and macro F1 comes from MELD's class imbalance: the mod
 **Context and what these results don't show:**
 
 - **There is no text-only baseline yet,** so these results do not show how much the vision branch contributes. The text encoder is already fine-tuned for emotion, so text may be doing most of the work.
-- **Published MELD models score higher.** On the Papers with Code MELD leaderboard, conversational models such as COSMIC (~65) and TODKAT (~68) report higher weighted F1. Those models use the surrounding dialogue, while this one sees a single utterance. An earlier version of this README claimed this model beat text-only baselines. I've removed that claim because it wasn't supported by a controlled experiment.
 
 ### Latency (CPU only)
 
