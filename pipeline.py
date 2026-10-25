@@ -1,13 +1,11 @@
 import os
 import time
-from urllib import response
 import cv2
 import torch
 import torch.nn as nn
 from PIL import Image
-from transformers import AutoTokenizer, AutoModel, CLIPProcessor, CLIPModel, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModel, CLIPProcessor, CLIPModel
 from llama_cpp import Llama
-import torch
 torch.set_num_threads(4) # Match physical CPU cores
 
 # ---------------------------------------------------------
@@ -15,11 +13,8 @@ torch.set_num_threads(4) # Match physical CPU cores
 # ---------------------------------------------------------
 CLASSIFIER_PATH = "emotion_classifier_best.pth"
 
-# If downloaded via Hugging Face hub:
-MODEL_ID = r"./models/Qwen2.5-1.5B-Instruct"
-
-# If stored in a specific local folder path, use a raw string:
-# MODEL_ID = r"C:\Users\zbsmi\.cache\huggingface\hub\models--Qwen--Qwen2.5-1.5B-Instruct\snapshots\<hash>"
+# 4-bit quantized Qwen2.5-1.5B-Instruct (GGUF) used by llama-cpp-python
+GGUF_PATH = "./models/qwen2.5-1.5b-instruct-q4_k_m.gguf"
 
 EMOTION_MAP = {
     0: "Neutral",
@@ -60,7 +55,7 @@ class MultimodalEmotionClassifier(nn.Module):
 # Pipeline Initializer
 # ---------------------------------------------------------
 class EmotionResponsePipeline:
-    def __init__(self, classifier_path=CLASSIFIER_PATH, model_id=MODEL_ID):
+    def __init__(self, classifier_path=CLASSIFIER_PATH, gguf_path=GGUF_PATH):
         self.load_latencies = {}
         t_init_start = time.perf_counter()
 
@@ -95,16 +90,13 @@ class EmotionResponsePipeline:
 
         # 4. Load Qwen LLM
         t0 = time.perf_counter()
-        print(f"Loading Qwen model ({model_id})...")
-        self.llm_tokenizer = AutoTokenizer.from_pretrained(model_id)
+        print(f"Loading Qwen model ({gguf_path})...")
         self.llm = Llama(
-            model_path="./models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+            model_path=gguf_path,
             n_ctx=512,
             n_threads=4, # Matches Ryzen 3500U physical cores
             verbose=False
         )
-        if self.llm_tokenizer.pad_token is None:
-            self.llm_tokenizer.pad_token = self.llm_tokenizer.eos_token
         self._sync_device()
         self.load_latencies['llm_load_ms'] = (time.perf_counter() - t0) * 1000.0
 

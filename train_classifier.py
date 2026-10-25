@@ -8,7 +8,7 @@ import numpy as np
 # ---------------------------------------------------------
 # Configuration & Hyperparameters
 # ---------------------------------------------------------
-FEATURE_PATH = "data/cached_features.pt"
+FEATURE_PATH = "data/cached_features_train.pt"  # written by extract_features.py (dataset = 0)
 TEST_PATH = "data/cached_features_test.pt"
 VAL_PATH = "data/cached_features_dev.pt"
 BATCH_SIZE = 128
@@ -171,7 +171,8 @@ def main():
     model.load_state_dict(torch.load("emotion_classifier_best.pth"))
     model.eval()
 
-    emotion_names = ["Neutral", "Surprise", "Fear", "Sadness", "Joy", "Disgust", "Anger"]
+    # Must match EMOTION_MAP in extract_features.py (label index -> name)
+    emotion_names = ["Neutral", "Joy", "Surprise", "Anger", "Sadness", "Disgust", "Fear"]
 
     # --- Validation (Dev) Set Report ---
     dev_preds, dev_labels = [], []
